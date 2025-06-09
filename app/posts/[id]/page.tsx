@@ -1,0 +1,278 @@
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { fetchPostFromApiWithAutoDomain } from "@/lib/api-service";
+import {
+  ArrowLeft,
+  Bookmark,
+  Calendar,
+  MapPin,
+  Share2,
+  Tag,
+  User,
+} from "lucide-react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+
+export default async function PostPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const postId = Number.parseInt(id);
+
+  if (isNaN(postId) || postId < 0) {
+    notFound();
+  }
+
+  try {
+    // API에서 게시물 데이터 가져오기 (도메인 자동 감지)
+    const post = await fetchPostFromApiWithAutoDomain(id);
+
+    // 관련 게시글은 향후 API로 구현 예정
+    const relatedPosts: any[] = [];
+
+    return (
+      <main className="min-h-screen bg-gray-50 pb-20">
+        {/* Hero Header */}
+        <div className="relative h-[50vh] flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-cover bg-center z-0"
+            style={{
+              backgroundImage: `url('/placeholder.svg?height=1080&width=1920&query=travel destination related to ${post.title}')`,
+              backgroundAttachment: "fixed",
+            }}
+          >
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
+          </div>
+
+          <div className="container relative z-10 px-4 text-center">
+            <Link
+              href="/"
+              className="inline-flex items-center text-white/80 hover:text-white mb-6 transition-colors"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              메인으로 돌아가기
+            </Link>
+            <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
+              {post.title}
+            </h1>
+            <div className="flex flex-wrap justify-center gap-4 text-white/90">
+              <div className="flex items-center">
+                <Calendar className="mr-2 h-4 w-4" />
+                <span>
+                  {new Date(post.date || new Date()).toLocaleDateString(
+                    "ko-KR"
+                  )}
+                </span>
+              </div>
+              <div className="flex items-center">
+                <User className="mr-2 h-4 w-4" />
+                <span>{post.author || "관리자"}</span>
+              </div>
+              {post.tags && (
+                <div className="flex items-center">
+                  <Tag className="mr-2 h-4 w-4" />
+                  <div className="flex gap-1">
+                    {post.tags.map((tag, index) => (
+                      <span key={index}>#{tag}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="container px-4 -mt-16 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main Content */}
+            <div className="lg:col-span-2">
+              <Card className="shadow-lg">
+                <CardContent className="p-8">
+                  <div className="flex justify-between items-center mb-6">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 font-bold">
+                        {(post.author || "관리자").substring(0, 1)}
+                      </div>
+                      <div className="ml-3">
+                        <div className="font-medium">
+                          {post.author || "관리자"}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          여행 블로거
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="ghost" size="icon">
+                        <Share2 className="h-5 w-5" />
+                      </Button>
+                      <Button variant="ghost" size="icon">
+                        <Bookmark className="h-5 w-5" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="prose prose-amber max-w-none">
+                    <div className="mb-6 flex items-center text-muted-foreground">
+                      <MapPin className="mr-2 h-4 w-4" />
+                      <span>여행지: 제주도</span>
+                    </div>
+
+                    <div className="mb-8">
+                      <img
+                        src={`/placeholder.svg?height=600&width=1200&query=detailed view of ${post.title}`}
+                        alt={post.title}
+                        className="w-full h-auto rounded-lg"
+                      />
+                    </div>
+
+                    <div className="space-y-4 text-gray-700">
+                      <p
+                        className="whitespace-pre-line"
+                        dangerouslySetInnerHTML={{ __html: post.content }}
+                      ></p>
+                    </div>
+
+                    {/* 추가 이미지 */}
+                    <div className="my-8 grid grid-cols-2 gap-4">
+                      <img
+                        src={`/placeholder.svg?height=400&width=600&query=travel scene 1 related to ${post.title}`}
+                        alt="여행 사진 1"
+                        className="w-full h-auto rounded-lg"
+                      />
+                      <img
+                        src={`/placeholder.svg?height=400&width=600&query=travel scene 2 related to ${post.title}`}
+                        alt="여행 사진 2"
+                        className="w-full h-auto rounded-lg"
+                      />
+                    </div>
+
+                    <div className="space-y-4 text-gray-700">
+                      <p>
+                        이 여행은 정말 잊을 수 없는 경험이었습니다. 다음에
+                        방문할 때는 더 많은 시간을 가지고 더 깊이 탐험해보고
+                        싶습니다.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Tags */}
+                  {post.tags && (
+                    <div className="mt-8">
+                      <h3 className="text-lg font-medium mb-2">태그</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {post.tags.map((tag, index) => (
+                          <Badge
+                            key={index}
+                            variant="outline"
+                            className="bg-amber-50"
+                          >
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Comments Section */}
+              <Card className="mt-8 shadow-lg">
+                <CardContent className="p-8">
+                  <h3 className="text-xl font-bold mb-6">댓글 (3)</h3>
+                  <div className="space-y-6">
+                    {[1, 2, 3].map((comment) => (
+                      <div
+                        key={comment}
+                        className="pb-6 border-b last:border-0"
+                      >
+                        <div className="flex justify-between mb-2">
+                          <div className="flex items-center">
+                            <div className="w-8 h-8 rounded-full bg-gray-200"></div>
+                            <div className="ml-3">
+                              <div className="font-medium">여행자{comment}</div>
+                              <div className="text-xs text-muted-foreground">
+                                2023.05.{20 + comment}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-gray-700">
+                          정말 유익한 정보 감사합니다! 다음 여행 계획에 많은
+                          도움이 될 것 같아요.
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Sidebar */}
+            <div>
+              <div className="sticky top-8">
+                <Card className="shadow-lg mb-8">
+                  <CardContent className="p-6">
+                    <h3 className="text-lg font-bold mb-4">작성자 소개</h3>
+                    <div className="flex items-center mb-4">
+                      <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 text-xl font-bold">
+                        {(post.author || "관리자").substring(0, 1)}
+                      </div>
+                      <div className="ml-4">
+                        <div className="font-medium text-lg">
+                          {post.author || "관리자"}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          여행 블로거 & 사진작가
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-gray-700 mb-4">
+                      10년 이상의 여행 경험을 바탕으로 실용적인 여행 정보와
+                      아름다운 사진을 공유합니다.
+                    </p>
+                    <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white">
+                      프로필 보기
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-lg">
+                  <CardContent className="p-6">
+                    <h3 className="text-lg font-bold mb-4">관련 게시글</h3>
+                    <div className="space-y-4">
+                      {relatedPosts.map((relatedPost, index) => (
+                        <div key={index} className="flex gap-3">
+                          <img
+                            src={`/placeholder.svg?height=80&width=80&query=travel thumbnail ${index}`}
+                            alt={relatedPost.title}
+                            className="w-20 h-20 object-cover rounded-md"
+                          />
+                          <div>
+                            <h4 className="font-medium line-clamp-2 hover:text-amber-600 transition-colors">
+                              <Link href={`/posts/1`}>{relatedPost.title}</Link>
+                            </h4>
+                            <div className="text-xs text-muted-foreground mt-1">
+                              2023.05.{15 + index}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  } catch (error) {
+    console.error("게시물 로드 실패:", error);
+    notFound();
+  }
+}
