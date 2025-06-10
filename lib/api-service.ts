@@ -1,6 +1,5 @@
 import type { ApiPostResponse, Post } from "./types";
 import { ApiError } from "./types";
-import { getCurrentProjectDomain } from "./domain-mapper";
 
 // API 기본 설정
 const API_BASE_URL = "http://43.203.241.93:4000";
@@ -139,7 +138,7 @@ export async function fetchMultiplePostsFromApi(
  */
 export async function fetchPostFromApiWithAutoDomain(postId: string | number): Promise<Post> {
   // 하드코딩된 도메인 사용 (pbn-domains.json 기반)
-  const domain = "https://awakentheabswithin.com";
+  const domain = "https://globalwing.co.kr";
   return fetchPostFromApi(domain, Number(postId));
 }
 
@@ -148,9 +147,10 @@ export async function fetchPostFromApiWithAutoDomain(postId: string | number): P
  */
 export async function fetchPostFromApiClient(postId: string | number): Promise<Post> {
   // 클라이언트에서는 현재 호스트를 기본값으로 사용
-  const currentHost = typeof window !== 'undefined' ? window.location.origin : 'https://example.com';
+  const currentHost = typeof window !== 'undefined' ? window.location.origin : 'https://globalwing.co.kr';
   return fetchPostFromApi(currentHost, Number(postId));
 }
 
 // getCurrentProjectDomain 함수도 export
 export { getCurrentProjectDomain } from "./domain-mapper";
+
